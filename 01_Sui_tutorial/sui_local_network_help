@@ -1,0 +1,11 @@
+# To start a local sui network for testing from scratch (force a new genesis block)
+$ RUST_LOG="off,sui_node=info" sui start --with-faucet --force-regenesis
+
+# To start a local network from where it was stopped last time, omit the "--force-regenesis" flag from the previous command
+$ RUST_LOG="off,sui_node=info" sui start --with-faucet
+
+# Local folder where Sui saves the local network database data, alongside with other important files:
+/home/ricardoalmeida/.sui/sui_config
+
+# The database backup is the "genesis.blob" file. I believe this is a Postgres DB file (No-SQL)
+
