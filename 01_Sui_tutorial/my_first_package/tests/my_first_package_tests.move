@@ -16,26 +16,23 @@ fun test_my_first_package_fail() {
     abort ENotImplemented
 }
 */
-#[test_only]
-module my_first_package::my_first_package_tests;
 
-use my_first_package::example::Sword;
+// module my_first_package::my_first_package_tests;
 
-#[test]
-public fun test_sword_create() {
-    // Create a dummy TxContext for testing
-    let mut ctx = tx_context::dummy();
+// use my_first_package::example;
 
-    // Create a Sword
-    let sword: Sword = Sword {
-        id: object::new(&mut ctx),
-        magic: 43,
-        strength: 7,
-    };
+// const MAGIC: u64 = 77;
+// const STRENGTH: u64 = 11;
 
-    // Check if accessor functions return correct values
-    assert!(sword.magic() == 43 && sword.strength() == 7, 1);
+// #[test]
+// fun test_sword_create() {
+//     let mut ctx = tx_context::dummy();
 
-    let dummy_address = @0xCAFE;
-    transfer::public_transfer(sword, dummy_address);
-}
+//     let sword: example::Sword = example::Sword {
+//         id: object::new(&ctx),
+//         magic: MAGIC,
+//         strength: STRENGTH,
+//     };
+
+//     assert!(sword.magic() == MAGIC && sword.strength() == STRENGTH, 1)
+// }

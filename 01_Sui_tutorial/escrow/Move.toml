@@ -1,8 +1,8 @@
 [package]
-name = "my_first_package"
+name = "escrow"
 edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
-license = "MIT"           # e.g., "MIT", "GPL", "Apache 2.0"
-authors = ["Ricardo Almeida (ricardo.almeida@unicam.it)"]      # e.g., ["Joe Smith (joesmith@noemail.com)", "John Snow (johnsnow@noemail.com)"]
+# license = ""           # e.g., "MIT", "GPL", "Apache 2.0"
+# authors = ["..."]      # e.g., ["Joe Smith (joesmith@noemail.com)", "John Snow (johnsnow@noemail.com)"]
 
 [dependencies]
 
@@ -18,7 +18,7 @@ authors = ["Ricardo Almeida (ricardo.almeida@unicam.it)"]      # e.g., ["Joe Smi
 # Override = { local = "../conflicting/version", override = true }
 
 [addresses]
-my_first_package = "0xCAFE"
+escrow = "0xCAFE"
 
 # Named addresses will be accessible in Move as `@name`. They're also exported:
 # for example, `std = "0x1"` is exported by the Standard Library.
