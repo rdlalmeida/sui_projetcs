@@ -1,11 +1,3 @@
-/*
-/// Module: car_factory
-module car_factory::car_factory;
-*/
-
-// For Move coding conventions, see
-// https://docs.sui.io/concepts/sui-move-concepts/conventions
-
 module car_factory::car_factory;
 
 use std::string;
@@ -20,6 +12,7 @@ public struct ModuleOwner has key, store {
 /// The Car object, as implemented in Sui-Move
 public struct Car has key, store {
     id: UID,
+    owner: address,
     color: string::String,
     licence_plate: string::String,
     running: bool,
@@ -79,15 +72,20 @@ entry fun createCar(
     _licence_plate: string::String,
     _insurance_policy: string::String,
     module_owner: &ModuleOwner,
-    car_owner_garage: &mut Garage,
+    garage: &mut Garage,
+    car_owner: address,
     ctx: &mut sui::tx_context::TxContext,
 ) {
     // Ensure that only the owner of the module can create new cars
     assert!(module_owner.owner == ctx.sender());
 
+    // And that the owner of the garage provided and the new car are the same
+    assert!(car_owner == garage.garage_owner);
+
     // Create the new car
     let new_car: Car = Car {
         id: object::new(ctx),
+        owner: car_owner,
         color: _color,
         licence_plate: _licence_plate,
         running: false,
@@ -97,15 +95,10 @@ entry fun createCar(
     // Emit the CarCreated event
     event::emit(CarCreated {
         car_id: new_car.id.to_inner(),
-        car_owner: car_owner_garage.garage_owner,
+        car_owner: car_owner,
         licence_plate: new_car.licence_plate,
     });
-
-    // And finish by storing the new car into the owner garage that was provided as reference
-    // I'm not validating if there is a car already in the garage with the id created since I'm
-    // trusting Sui's internal mechanics that guarantee that every UID produced (with sui::object::new(ctx))
-    // is unique within the network, therefore I'm sure that no other Car exists with the same UID
-    car_owner_garage.stored_cars.add(new_car.id.to_inner(), new_car);
+    garage.stored_cars.add(new_car.id.to_inner(), new_car);
 }
 
 entry fun destroyCar(car_id: ID, garage: &mut Garage) {
@@ -113,6 +106,7 @@ entry fun destroyCar(car_id: ID, garage: &mut Garage) {
 
     let Car {
         id: uid,
+        owner: car_owner,
         color: _,
         licence_plate: destroyed_licence_plate,
         running: _,
@@ -121,11 +115,33 @@ entry fun destroyCar(car_id: ID, garage: &mut Garage) {
 
     event::emit(CarDestroyed {
         car_id: uid.to_inner(),
-        car_owner: garage.garage_owner,
+        car_owner: car_owner,
         licence_plate: destroyed_licence_plate,
     });
 
     uid.delete();
+}
+
+public fun storeCar(carToStore: Car, garage: &mut Garage) {
+    // Ensure that the owner of the car to store and the garage are the same
+    assert!(carToStore.owner == garage.garage_owner);
+
+    // Ensure that the Car is not in the garage already
+    assert!(!garage.stored_cars.contains(carToStore.id.to_inner()));
+
+    // Move the Car into the Garage
+    garage.stored_cars.add(carToStore.id.to_inner(), carToStore);
+}
+
+public fun retrieveCar(carId: ID, garage: &mut Garage): Car {
+    // Check first if the car in question is in the garage reference provided
+    assert!(garage.stored_cars.contains(carId));
+
+    // The car exists. Retrieve it from the Garage
+    let carToReturn: Car = garage.stored_cars.remove(carId);
+
+    // And return the car back to the caller
+    return carToReturn
 }
 
 entry fun startCar(garage: &mut Garage, car_id: ID) {
